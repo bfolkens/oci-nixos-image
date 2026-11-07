@@ -1,0 +1,31 @@
+name: Packer
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: packer fmt -check .
+      - run: packer init .
+      - name: Validate with a dummy OCI profile
+        env:
+          PKR_VAR_oci_profile: DEFAULT
+          PKR_VAR_oci_compartment_id: ocid1.compartment.oc1..dummy
+          PKR_VAR_public_subnet: ocid1.subnet.oc1.us-phoenix-1.dummy
+          PKR_VAR_availability_domain: PHX-AD-1
+        run: |
+          mkdir -p "$HOME/.oci"
+          openssl genrsa -traditional -out "$HOME/.oci/ci.pem" 2048
+          cat > "$HOME/.oci/config" <<EOF
+          [DEFAULT]
+          tenancy=ocid1.tenancy.oc1..dummy
+          user=ocid1.user.oc1..dummy
+          fingerprint=00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+          region=us-phoenix-1
+          key_file=$HOME/.oci/ci.pem
+          EOF
+          packer validate .
