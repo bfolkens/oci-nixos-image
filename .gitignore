@@ -1,0 +1,5 @@
+/manifest.json
+/packer*.pem
+oci_*.pem
+
+.envrc
