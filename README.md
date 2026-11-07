@@ -1,7 +1,8 @@
 # NixOS OCI image
 
-Build a reusable NixOS image for Oracle Cloud Infrastructure, with SSH access
-and Nix flakes enabled.
+Oracle doesn't ship an official image for NixOS. This project provides a
+template for building a reusable NixOS image for Oracle Cloud Infrastructure,
+with SSH access and Nix flakes enabled.
 
 ## Build
 
@@ -22,7 +23,7 @@ packer build nixos.pkr.hcl
 
 Set `image_name`, `builder_ocpus`, or `builder_memory_in_gbs` with `-var` as
 needed. Other variables my be more convenient with environment variables like
-PKR_VAR_oci_profile, etc.  The image OCID appears in Packer's output and
+`PKR_VAR_oci_profile`, etc.  The image OCID appears in Packer's output and
 `manifest.json`.
 
 ## Use the image
