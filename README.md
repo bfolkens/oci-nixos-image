@@ -29,7 +29,7 @@ needed. Other variables my be more convenient with environment variables like
 ## Use the image
 
 1. Launch an OCI instance from the custom image.
-   ```sh
+   ```bash
    oci compute instance launch \
        --compartment-id "${PKR_VAR_oci_compartment_id}" \
        --availability-domain "${PKR_VAR_availability_domain}" \
@@ -60,3 +60,46 @@ this flake's `nixosModules.oci`, or copy `modules/oci-platform.nix` and
 `modules/fetch-ssh-keys.sh` into your deployment repository.
 
 The base configuration remains in `/etc/nixos` for local rebuilds.
+
+## Example
+
+An simple flake may look like the following:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    oci-image.url = "github:bfolkens/oci-nixos-image/master";
+  };
+
+  outputs = { nixpkgs, oci-image, ... }: {
+    nixosConfigurations.my-oci-vm = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        oci-image.nixosModules.oci
+        {
+          networking.hostName = "my-oci-vm";
+          nix.settings.experimental-features = [ "nix-command" "flakes" ];
+          system.stateVersion = "26.05";
+        }
+      ];
+    };
+  };
+}
+```
+
+Which you could then apply with:
+
+```bash
+nixos-rebuild switch --flake .#my-oci-vm
+```
+
+Or apply remotely with:
+
+```bash
+nix --extra-experimental-features 'nix-command flakes' \
+  run 'github:NixOS/nixpkgs/nixos-26.05#nixos-rebuild-ng' -- \
+  switch --flake '.#my-oci-vm' --no-reexec \
+  --build-host root@INSTANCE_IP \
+  --target-host root@INSTANCE_IP
+```
