@@ -63,7 +63,7 @@ The base configuration remains in `/etc/nixos` for local rebuilds.
 
 ## Example
 
-An simple flake may look like the following:
+A simple flake may look like the following:
 
 ```nix
 {
